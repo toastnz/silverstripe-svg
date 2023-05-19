@@ -3,6 +3,7 @@
 namespace StevieMayhew\SilverStripeSVG;
 
 use DOMDocument;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\View\ViewableData;
 
 /**
@@ -70,6 +71,14 @@ class SVGTemplate extends ViewableData
      */
     private $subfolders;
 
+    private $extra_classes = [];
+
+    private $name;
+
+    private $id;
+
+    private $out;
+
     /**
      * @param string $name
      * @param string $id
@@ -78,7 +87,7 @@ class SVGTemplate extends ViewableData
     {
         $this->name = $name;
         $this->id = $id;
-        $this->extra_classes = $this->config('default_extra_classes');
+        $this->extra_classes = Config::inst()->get(self::class, 'default_extra_classes') ?: [];
         $this->extra_classes[] = 'svg-'.$this->name;
         $this->subfolders = array();
         $this->out = new DOMDocument();
@@ -227,12 +236,12 @@ class SVGTemplate extends ViewableData
     {
 
         $path = BASE_PATH . DIRECTORY_SEPARATOR;
-        $path .= ($this->custom_base_path) ? $this->custom_base_path : $this->stat('base_path');
+        $path .= ($this->custom_base_path) ? $this->custom_base_path : Config::inst()->get(self::class, 'base_path');
         $path .= DIRECTORY_SEPARATOR;
         foreach($this->subfolders as $subfolder) {
             $path .= $subfolder . DIRECTORY_SEPARATOR;
         }
-        $path .= (strpos($this->name, ".") === false) ? $this->name . '.' . $this->stat('extension') : $this->name;
+        $path .= (strpos($this->name, ".") === false) ? $this->name . '.' . Config::inst()->get(self::class, 'extension') : $this->name;
 
         return $this->process($path);
 
